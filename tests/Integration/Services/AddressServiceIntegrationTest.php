@@ -83,8 +83,8 @@ final class AddressServiceIntegrationTest extends IntegrationTestCase
 
         // Assert
         $this->assertNotNull($address->coordinates);
-        $this->assertSame(48.8566, $address->coordinates->latitude);
-        $this->assertSame(2.3522, $address->coordinates->longitude);
+        $this->assertSame(48.8566, $address->coordinates->latitude->getValue());
+        $this->assertSame(2.3522, $address->coordinates->longitude->getValue());
     }
 
     public function test_update_modifies_existing_address(): void
@@ -238,7 +238,7 @@ final class AddressServiceIntegrationTest extends IntegrationTestCase
 
         // Assert - avant mise à jour
         $this->assertNotNull($address->coordinates);
-        $this->assertSame(48.8566, $address->coordinates->latitude);
+        $this->assertSame(48.8566, $address->coordinates->latitude->getValue());
 
         // Act
         $updated = $this->addressService->updateRaw($address->id, [

@@ -1,12 +1,5 @@
 # Laravel Addresses
 
-> Gestion d'adresses polymorphiques pour applications Laravel
-
-[![Latest Version](https://img.shields.io/packagist/v/andydefer/laravel-addresses.svg?style=flat-square)](https://packagist.org/packages/andydefer/laravel-addresses)
-[![Total Downloads](https://img.shields.io/packagist/dt/andydefer/laravel-addresses.svg?style=flat-square)](https://packagist.org/packages/andydefer/laravel-addresses)
-[![PHP Version](https://img.shields.io/packagist/php-v/andydefer/laravel-addresses.svg?style=flat-square)](https://packagist.org/packages/andydefer/laravel-addresses)
-[![License](https://img.shields.io/packagist/l/andydefer/laravel-addresses.svg?style=flat-square)](https://packagist.org/packages/andydefer/laravel-addresses)
-
 Un package Laravel complet pour gérer des adresses polymorphiques avec le pattern Repository, des DTOs, des Value Objects et une gestion des adresses principales.
 
 ---
