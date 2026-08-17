@@ -140,6 +140,7 @@ final class AddressServiceIntegrationTest extends IntegrationTestCase
         $this->assertSame('Paris', $updated->city);  // inchangé
         $this->assertSame(AddressType::BILLING, $updated->address_type);
         $this->assertSame(Country::FR, $updated->country);
+
         $this->assertSame('75001', $updated->postal_code->getValue());
 
         $this->assertDatabaseHas('addresses', [

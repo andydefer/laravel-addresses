@@ -7,22 +7,52 @@ namespace AndyDefer\LaravelAddresses\Models;
 use AndyDefer\DomainStructures\Services\EnumService;
 use AndyDefer\DomainStructures\Utils\StrictDataObject;
 use AndyDefer\LaravelAddresses\Enums\AddressType;
+use AndyDefer\LaravelUtils\Proxies\AttributeProxy;
 use AndyDefer\PhpVo\Enums\Country;
 use AndyDefer\PhpVo\ValueObjects\CoordinatesVO;
 use AndyDefer\PhpVo\ValueObjects\DateTimeVO;
 use AndyDefer\PhpVo\ValueObjects\PostalCodeVO;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Address model representing physical addresses in the system.
+ *
+ * This model handles polymorphic addresses that can be attached to any
+ * addressable model (User, Pharmacy, Hospital, etc.).
+ *
+ * @property int $id
+ * @property string $addressable_type
+ * @property int $addressable_id
+ * @property string|null $street
+ * @property string|null $city
+ * @property Country $country
+ * @property PostalCodeVO|null $postal_code
+ * @property array|null $geo_coordinates
+ * @property AddressType $address_type
+ * @property array|null $metadata
+ * @property CoordinatesVO|null $coordinates
+ * @property DateTimeVO|null $created_at
+ * @property DateTimeVO|null $updated_at
+ * @property DateTimeVO|null $deleted_at
+ * @property-read Model|null $addressable
+ */
 final class Address extends Model
 {
     use SoftDeletes;
 
     private static ?EnumService $enumService = null;
 
+    /** @var string The database table name */
     protected $table = 'addresses';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'addressable_type',
         'addressable_id',
@@ -35,9 +65,15 @@ final class Address extends Model
         'metadata',
     ];
 
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
     protected $casts = [
         'geo_coordinates' => 'array',
         'metadata' => 'array',
+        'postal_code' => 'array',
         'country' => Country::class,
         'address_type' => AddressType::class,
         'created_at' => 'datetime',
@@ -45,82 +81,79 @@ final class Address extends Model
         'deleted_at' => 'datetime',
     ];
 
-    private static function getEnumService(): EnumService
-    {
-        if (self::$enumService === null) {
-            self::$enumService = new EnumService;
-        }
-
-        return self::$enumService;
-    }
-
+    /**
+     * Get the parent addressable model (polymorphic).
+     *
+     * @return MorphTo
+     */
     public function addressable()
     {
         return $this->morphTo();
     }
 
-    // Accesseur pour postal_code (propriété virtuelle postalCode en camelCase)
+    /**
+     * Get the postal code as a value object.
+     */
     protected function postalCode(): Attribute
     {
-        return Attribute::make(
-            get: fn ($value, $attributes) => isset($attributes['postal_code'])
-                ? PostalCodeVO::from($attributes['postal_code'])
-                : null,
+        return AttributeProxy::nullable(
+            PostalCodeVO::class,
+            column: 'postal_code',
         );
     }
 
-    // Accesseur pour geo_coordinates (propriété virtuelle coordinates en camelCase)
+    /**
+     * Get the geo coordinates as a CoordinatesVO.
+     */
     protected function coordinates(): Attribute
     {
-        return Attribute::make(
-            get: function ($value, $attributes) {
-                if (! isset($attributes['geo_coordinates']) || ! $attributes['geo_coordinates']) {
-                    return null;
-                }
-
-                $coords = is_string($attributes['geo_coordinates'])
-                    ? json_decode($attributes['geo_coordinates'], true)
-                    : $attributes['geo_coordinates'];
-
-                return CoordinatesVO::from([
-                    'latitude' => $coords['latitude'] ?? null,
-                    'longitude' => $coords['longitude'] ?? null,
-                ]);
-            }
+        return AttributeProxy::nullable(
+            CoordinatesVO::class,
+            column: 'geo_coordinates',
         );
     }
 
+    /**
+     * Get the metadata as a StrictDataObject.
+     */
     protected function metadata(): Attribute
     {
-        return Attribute::make(
-            get: fn ($value, $attributes) => isset($attributes['metadata']) && $attributes['metadata']
-                ? StrictDataObject::from(
-                    is_string($attributes['metadata'])
-                        ? json_decode($attributes['metadata'], true)
-                        : $attributes['metadata']
-                )
-                : null,
+        return AttributeProxy::nullable(
+            StrictDataObject::class,
+            column: 'metadata',
         );
     }
 
+    /**
+     * Get the created at timestamp as a DateTimeVO.
+     */
     protected function createdAt(): Attribute
     {
-        return Attribute::make(
-            get: fn ($value) => $value ? DateTimeVO::from($value) : null,
+        return AttributeProxy::nullable(
+            DateTimeVO::class,
+            column: 'created_at',
         );
     }
 
+    /**
+     * Get the updated at timestamp as a DateTimeVO.
+     */
     protected function updatedAt(): Attribute
     {
-        return Attribute::make(
-            get: fn ($value) => $value ? DateTimeVO::from($value) : null,
+        return AttributeProxy::nullable(
+            DateTimeVO::class,
+            column: 'updated_at',
         );
     }
 
+    /**
+     * Get the deleted at timestamp as a DateTimeVO (soft delete).
+     */
     protected function deletedAt(): Attribute
     {
-        return Attribute::make(
-            get: fn ($value) => $value ? DateTimeVO::from($value) : null,
+        return AttributeProxy::nullable(
+            DateTimeVO::class,
+            column: 'deleted_at',
         );
     }
 }
