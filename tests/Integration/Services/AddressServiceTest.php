@@ -18,7 +18,7 @@ use AndyDefer\PhpVo\ValueObjects\CoordinatesVO;
 use AndyDefer\PhpVo\ValueObjects\PostalCodeVO;
 use Illuminate\Support\Collection;
 
-final class AddressServiceIntegrationTest extends IntegrationTestCase
+final class AddressServiceTest extends IntegrationTestCase
 {
     private AddressService $addressService;
 
