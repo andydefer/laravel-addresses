@@ -13,17 +13,12 @@ use AndyDefer\PhpVo\ValueObjects\DateTimeVO;
 use AndyDefer\PhpVo\ValueObjects\PostalCodeVO;
 use AndyDefer\Repository\Proxies\AttributeProxy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Address model representing physical addresses in the system.
- *
- * This model handles polymorphic addresses that can be attached to any
- * addressable model (User, Pharmacy, Hospital, etc.).
- *
- * @property int $id
+ * @property string $id
  * @property string $addressable_type
  * @property int $addressable_id
  * @property string|null $street
@@ -41,18 +36,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 final class Address extends Model
 {
+    use HasUuids;
     use SoftDeletes;
 
     private static ?EnumService $enumService = null;
 
-    /** @var string The database table name */
     protected $table = 'addresses';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
         'addressable_type',
         'addressable_id',
@@ -65,11 +59,6 @@ final class Address extends Model
         'metadata',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'geo_coordinates' => 'array',
         'metadata' => 'array',
@@ -81,19 +70,11 @@ final class Address extends Model
         'deleted_at' => 'datetime',
     ];
 
-    /**
-     * Get the parent addressable model (polymorphic).
-     *
-     * @return MorphTo
-     */
     public function addressable()
     {
         return $this->morphTo();
     }
 
-    /**
-     * Get the postal code as a value object.
-     */
     protected function postalCode(): Attribute
     {
         return AttributeProxy::nullable(
@@ -102,9 +83,6 @@ final class Address extends Model
         );
     }
 
-    /**
-     * Get the geo coordinates as a CoordinatesVO.
-     */
     protected function coordinates(): Attribute
     {
         return AttributeProxy::nullable(
@@ -113,9 +91,6 @@ final class Address extends Model
         );
     }
 
-    /**
-     * Get the metadata as a StrictDataObject.
-     */
     protected function metadata(): Attribute
     {
         return AttributeProxy::nullable(
@@ -124,9 +99,6 @@ final class Address extends Model
         );
     }
 
-    /**
-     * Get the created at timestamp as a DateTimeVO.
-     */
     protected function createdAt(): Attribute
     {
         return AttributeProxy::nullable(
@@ -135,9 +107,6 @@ final class Address extends Model
         );
     }
 
-    /**
-     * Get the updated at timestamp as a DateTimeVO.
-     */
     protected function updatedAt(): Attribute
     {
         return AttributeProxy::nullable(
@@ -146,9 +115,6 @@ final class Address extends Model
         );
     }
 
-    /**
-     * Get the deleted at timestamp as a DateTimeVO (soft delete).
-     */
     protected function deletedAt(): Attribute
     {
         return AttributeProxy::nullable(

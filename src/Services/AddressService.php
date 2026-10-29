@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AndyDefer\LaravelAddresses\Services;
 
-use AndyDefer\DomainStructures\Services\HydrationService;
 use AndyDefer\LaravelAddresses\Enums\AddressType;
 use AndyDefer\LaravelAddresses\Records\AddressFilterRecord;
 use AndyDefer\LaravelAddresses\Records\AddressRecord;
@@ -17,12 +16,11 @@ final class AddressService
 {
     public function __construct(
         private readonly AddressRepository $addressRepository,
-        private readonly HydrationService $hydration,
     ) {}
 
     public function add(Model $addressable, AddressRecord $record): Model
     {
-        $record = $this->hydration->hydrate(AddressRecord::class, [
+        $record = AddressRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
             ...$record->toArrayWithoutNulls(),
@@ -31,7 +29,7 @@ final class AddressService
         return $this->addressRepository->create($record);
     }
 
-    public function update(int $addressId, AddressRecord $record): Model
+    public function update(int|string $addressId, AddressRecord $record): Model
     {
         return $this->addressRepository->update($addressId, $record);
     }
@@ -42,44 +40,40 @@ final class AddressService
      *
      * @param  array<string, mixed>  $data
      */
-    public function updateRaw(int $addressId, array $data): Model
+    public function updateRaw(int|string $addressId, array $data): Model
     {
         return $this->addressRepository->updateRaw($addressId, $data);
     }
 
-    public function delete(int $addressId): bool
+    public function delete(int|string $addressId): bool
     {
         return $this->addressRepository->delete($addressId);
     }
 
     public function all(Model $addressable): Collection
     {
-        $filter = $this->hydration->hydrate(AddressFilterRecord::class, [
+        $filter = AddressFilterRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
         ]);
 
-        $findByRecord = new FindByRecord(filters: $filter);
-
-        return $this->addressRepository->findBy($findByRecord);
+        return $this->addressRepository->findBy(new FindByRecord(filters: $filter));
     }
 
     public function byType(Model $addressable, AddressType $type): Collection
     {
-        $filter = $this->hydration->hydrate(AddressFilterRecord::class, [
+        $filter = AddressFilterRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
             'address_type' => $type,
         ]);
 
-        $findByRecord = new FindByRecord(filters: $filter);
-
-        return $this->addressRepository->findBy($findByRecord);
+        return $this->addressRepository->findBy(new FindByRecord(filters: $filter));
     }
 
     public function primary(Model $addressable): ?Model
     {
-        $filter = $this->hydration->hydrate(AddressFilterRecord::class, [
+        $filter = AddressFilterRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
             'address_type' => AddressType::PRIMARY,
@@ -90,36 +84,34 @@ final class AddressService
             limit: 1,
         );
 
-        $collection = $this->addressRepository->findBy($findByRecord);
-
-        return $collection->first();
+        return $this->addressRepository->findBy($findByRecord)->first();
     }
 
-    public function setPrimary(Model $addressable, int $addressId): void
+    public function setPrimary(Model $addressable, int|string $addressId): void
     {
         $oldPrimary = $this->primary($addressable);
 
         if ($oldPrimary) {
-            $oldPrimaryRecord = $this->hydration->hydrate(AddressRecord::class, [
+            $oldPrimaryRecord = AddressRecord::from([
                 'address_type' => AddressType::OTHER,
             ]);
             $this->addressRepository->update($oldPrimary->id, $oldPrimaryRecord);
         }
 
-        $newPrimaryRecord = $this->hydration->hydrate(AddressRecord::class, [
+        $newPrimaryRecord = AddressRecord::from([
             'address_type' => AddressType::PRIMARY,
         ]);
         $this->addressRepository->update($addressId, $newPrimaryRecord);
     }
 
-    public function find(int $addressId): ?Model
+    public function find(int|string $addressId): ?Model
     {
         return $this->addressRepository->find($addressId);
     }
 
     public function count(Model $addressable): int
     {
-        $filter = $this->hydration->hydrate(AddressFilterRecord::class, [
+        $filter = AddressFilterRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
         ]);
@@ -129,7 +121,7 @@ final class AddressService
 
     public function hasType(Model $addressable, AddressType $type): bool
     {
-        $filter = $this->hydration->hydrate(AddressFilterRecord::class, [
+        $filter = AddressFilterRecord::from([
             'addressable_type' => $addressable->getMorphClass(),
             'addressable_id' => $addressable->getKey(),
             'address_type' => $type,

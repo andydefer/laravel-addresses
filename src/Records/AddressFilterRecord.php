@@ -12,7 +12,7 @@ final class AddressFilterRecord extends AbstractRecord
 {
     public function __construct(
         public readonly ?string $addressable_type = null,
-        public readonly ?int $addressable_id = null,
+        public readonly ?string $addressable_id = null,
         public readonly ?AddressType $address_type = null,
         public readonly ?string $city = null,
         public readonly ?Country $country = null,

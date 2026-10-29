@@ -15,9 +15,9 @@ use AndyDefer\PhpVo\ValueObjects\PostalCodeVO;
 final class AddressRecord extends AbstractRecord
 {
     public function __construct(
-        public readonly ?int $id = null,
+        public readonly ?string $id = null,
         public readonly ?string $addressable_type = null,
-        public readonly ?int $addressable_id = null,
+        public readonly ?string $addressable_id = null,
         public readonly ?string $street = null,
         public readonly ?string $city = null,
         public readonly ?Country $country = null,
