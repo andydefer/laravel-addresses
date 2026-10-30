@@ -15,7 +15,7 @@ use AndyDefer\PhpVo\ValueObjects\PostalCodeVO;
 final class AddressData extends AbstractData
 {
     public function __construct(
-        public readonly int $id,
+        public readonly string $id,
         public readonly string $addressableType,
         public readonly string $addressableId,
         public readonly string $street,
