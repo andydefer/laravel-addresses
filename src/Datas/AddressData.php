@@ -17,7 +17,7 @@ final class AddressData extends AbstractData
     public function __construct(
         public readonly int $id,
         public readonly string $addressableType,
-        public readonly int $addressableId,
+        public readonly string $addressableId,
         public readonly string $street,
         public readonly string $city,
         public readonly Country $country,
