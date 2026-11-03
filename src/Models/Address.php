@@ -15,6 +15,7 @@ use AndyDefer\Repository\Proxies\AttributeProxy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -70,7 +71,7 @@ final class Address extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function addressable()
+    public function addressable(): MorphTo
     {
         return $this->morphTo();
     }
